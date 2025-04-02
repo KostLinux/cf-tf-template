@@ -1,0 +1,103 @@
+name: Terraform CI/CD
+
+on:
+  push:
+    branches:
+      - '*'
+  pull_request:
+    branches:
+      - master
+
+env:
+    TF_VAR_cloudflare_api_token: ${{ secrets.CLOUDFLARE_API_TOKEN }}
+    TF_BACKEND_BUCKET: venturing-terraform-init-encrypted-bucket
+    TF_BACKEND_KEY: terraform.tfstate
+    TF_BACKEND_REGION: us-east-1
+
+jobs:
+  tflint:
+    name: 'TFLint'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup TFLint
+      uses: terraform-linters/setup-tflint@v4
+      with:
+        tflint_version: latest
+
+    - name: Run TFLint
+      run: tflint
+
+  tfsec:
+    name: 'TFSec'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+    - name: tfsec
+      uses: aquasecurity/tfsec-action@v1.0.0
+
+  terraform_plan:
+    name: 'Terraform Plan'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@main
+      with:
+        terraform_version: 1.11.3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.TF_BACKEND_REGION }}
+
+    - name: Initialize Terraform
+      run: |
+        terraform init -reconfigure \
+        -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
+        -backend-config="key=${{ env.TF_BACKEND_KEY }}" \
+        -backend-config="region=${{ env.TF_BACKEND_REGION }}"
+
+    - name: Terraform Format
+      run: terraform fmt -check
+
+    - name: Terraform Plan
+      run: terraform plan -no-color
+
+  terraform_apply:
+    name: 'Terraform Apply'
+    needs: [tflint, tfsec, terraform_plan]
+    if: github.ref == 'refs/heads/master' && github.event_name == 'push'
+    runs-on: ubuntu-latest
+    steps:
+    - name: Checkout
+      uses: actions/checkout@v4
+
+    - name: Setup Terraform
+      uses: hashicorp/setup-terraform@main
+      with:
+        terraform_version: 1.11.3
+
+    - name: Configure AWS Credentials
+      uses: aws-actions/configure-aws-credentials@v4
+      with:
+        aws-access-key-id: ${{ secrets.AWS_ACCESS_KEY_ID }}
+        aws-secret-access-key: ${{ secrets.AWS_SECRET_ACCESS_KEY }}
+        aws-region: ${{ env.TF_BACKEND_REGION }}
+
+    - name: Initialize Terraform
+      run: |
+        terraform init -reconfigure \
+          -backend-config="bucket=${{ env.TF_BACKEND_BUCKET }}" \
+          -backend-config="key=${{ env.TF_BACKEND_KEY }}" \
+          -backend-config="region=${{ env.TF_BACKEND_REGION }}"
+
+    - name: Terraform Apply
+      run: terraform apply -auto-approve
