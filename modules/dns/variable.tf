@@ -1,6 +1,7 @@
 variable "dns_zone_name" {
   description = "The name of the DNS zone to create"
   type        = string
+  default     = ""
 }
 
 variable "dns_records_list" {
@@ -11,7 +12,22 @@ variable "dns_records_list" {
     proxied  = bool
     priority = optional(number)
   })))
-  description = "Map of DNS records to create"
+  description = "Map of DNS records to create for a single zone"
+  default     = {}
+}
+
+variable "multi_zone_dns_records" {
+  type = map(
+    map(list(object({
+      name     = string
+      value    = string
+      type     = string
+      proxied  = bool
+      priority = optional(number)
+    })))
+  )
+  description = "Map of zone names to records map for managing multiple zones"
+  default     = {}
 }
 
 variable "cloudflare_api_token" {

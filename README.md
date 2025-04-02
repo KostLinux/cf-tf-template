@@ -277,6 +277,15 @@ Update Terraform version in:
 - `provider.tf`
 - `modules/dns/provider.tf`
 
+## Contributing
+
+Please see our [Contributing Guide](CONTRIBUTING.md) for details on our code of conduct and the process for submitting pull requests. All contributors are expected to:
+
+- Follow Terraform best practices
+- Use conventional commit format for all commits
+- Pass all code validation checks (TFLint, TFSec, Terraform fmt)
+- Adhere to the established folder structure
+
 ## Troubleshooting
 
 ### Common Issues
