@@ -1,6 +1,6 @@
 data "cloudflare_zone" "single_zone" {
-  count = var.dns_zone_name != "" ? 1 : 0
-  name  = var.dns_zone_name
+  count = var.single_zone_name != "" ? 1 : 0
+  name  = var.single_zone_name
 }
 
 data "cloudflare_zone" "multi_zones" {

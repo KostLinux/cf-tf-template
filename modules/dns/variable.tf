@@ -1,10 +1,10 @@
-variable "dns_zone_name" {
-  description = "The name of the DNS zone to create"
+variable "single_zone_name" {
+  description = "The name of the DNS zone to create (single zone mode)"
   type        = string
   default     = ""
 }
 
-variable "dns_records_list" {
+variable "single_zone_dns_records_list" {
   type = map(list(object({
     name     = string
     value    = string

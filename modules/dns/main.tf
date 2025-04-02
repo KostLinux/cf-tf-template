@@ -1,8 +1,8 @@
 # Single zone records
 resource "cloudflare_record" "record" {
-  for_each = var.dns_zone_name != "" ? {
+  for_each = var.single_zone_name != "" ? {
     for record in flatten([
-      for key, records in var.dns_records_list : [
+      for key, records in var.single_zone_dns_records_list : [
         for idx, r in records : {
           key    = "${key}-${idx}"
           record = r

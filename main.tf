@@ -3,9 +3,9 @@ module "cloudflare_dns" {
 
   cloudflare_api_token = var.cloudflare_api_token
   
-  # Single zone configuration (legacy support)
-  dns_zone_name        = "venturingintellect.com"
-  dns_records_list = {
+  # Single zone configuration
+  single_zone_name    = "venturingintellect.com"
+  single_zone_dns_records_list = {
     "gh_pages" = [
       {
         name    = "venturingintellect.com"
