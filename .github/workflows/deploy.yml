@@ -37,7 +37,7 @@ jobs:
     - name: Checkout
       uses: actions/checkout@v4
     - name: tfsec
-      uses: aquasecurity/tfsec-action@v1.0.0
+      uses: aquasecurity/tfsec-action@v1.0.3
 
   terraform_plan:
     name: 'Terraform Plan'
